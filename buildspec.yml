@@ -3,21 +3,26 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR
-      - aws --version
+      - echo "=== PRE BUILD ==="
+      - aws sts get-caller-identity
       - aws ecr get-login-password --region ap-south-1 |
         docker login --username AWS --password-stdin 045998146012.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
-      - echo Build started on `date`
-      - ls -l
+      - echo "=== BUILD START ==="
+      - pwd
+      - ls -la
+      - ls -la dist || echo "dist NOT FOUND"
+      - ls -la Dockerfile || echo "Dockerfile NOT FOUND"
+      - docker version
       - docker build -t brain-task-app .
-      - docker tag brain-task-app:latest 045998146012.dkr.ecr.ap-south-1.amazonaws.com/brain-task-app:latest
 
   post_build:
     commands:
-      - echo Pushing image to ECR
+      - echo "=== PUSH ==="
+      - docker tag brain-task-app:latest 045998146012.dkr.ecr.ap-south-1.amazonaws.com/brain-task-app:latest
       - docker push 045998146012.dkr.ecr.ap-south-1.amazonaws.com/brain-task-app:latest
+
 
 
