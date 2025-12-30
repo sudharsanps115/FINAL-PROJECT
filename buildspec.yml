@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR
       - aws ecr get-login-password --region ap-south-1 |
-        docker login --username AWS --password-stdin 045998146012.dkr.ecr.ap-south-1.amazonaws.com/brain-task-app
+        docker login --username AWS --password-stdin 045998146012.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
@@ -17,3 +17,4 @@ phases:
     commands:
       - echo Pushing image to ECR
       - docker push 045998146012.dkr.ecr.ap-south-1.amazonaws.com/brain-task-app:latest
+
