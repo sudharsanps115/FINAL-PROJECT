@@ -1,0 +1,81 @@
+FINAL PROJECT – 1
+MindTrack
+# Project Overview
+
+MindTrack demonstrates an end-to-end AWS-native CI/CD pipeline for deploying a containerized web application to Amazon EKS using AWS CodePipeline and CodeBuild, 
+with monitoring via Amazon CloudWatch.The application is packaged as a Docker image, automatically built and pushed to Amazon ECR, and deployed to Amazon EKS 
+using Kubernetes manifests. Build, pipeline, and deployment logs are centrally monitored using CloudWatch Logs.
+
+# Tech Stack Used
+
+CI/CD
+AWS CodePipeline
+AWS CodeBuild
+Docker
+NGINX (serving static frontend)
+Amazon Elastic Container Registry (ECR)
+Amazon Elastic Kubernetes Service (EKS)
+Amazon CloudWatch (Logs & Metrics)
+
+Cloud Services
+
+AWS EC2
+IAM
+ECR
+EKS
+CloudWatch
+
+# CI/CD Flow
+GitHub -> CodePipeline -> CodeBuild -> Amazon ECR -> Amazon EKS -> CloudWatch
+
+Flow Explanation
+
+Code pushed to GitHub
+AWS CodePipeline detects changes and triggers the pipeline
+
+AWS CodeBuild:
+
+Builds the Docker image
+Authenticates to Amazon ECR
+Pushes the image to ECR
+CodeBuild deploys to EKS using kubectl apply
+
+CloudWatch Logs captures:
+CodePipeline execution logs
+CodeBuild build logs
+Deployment-related logs
+
+# CI/CD Implementation (CodeBuild)
+
+CodeBuild Responsibilities
+Authenticate to Amazon ECR
+Build Docker image using Dockerfile
+Tag Docker image with ECR repository URI
+Push image to Amazon ECR
+Apply Kubernetes manifests (Deployment.yaml, Service.yaml) to EKS
+
+# Kubernetes Deployment
+
+Deployment Configuration
+
+Kubernetes Deployment with 2 replicas
+Ensures high availability and fault tolerance
+
+Service Configuration
+Kubernetes Service (LoadBalancer)
+Exposes the application publicly
+
+Port Mapping
+
+Container runs on port 3000
+Exposed externally via port 80 using AWS LoadBalancer
+
+# Monitoring & Logging
+CloudWatch Used For:
+
+AWS CodeBuild Logs
+Build execution
+Docker build & push logs
+AWS CodePipeline Logs
+
+Pipeline stage execution
