@@ -16,8 +16,7 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-         sh
-        '''
+         sh '''
         cd TrendStore
         docker build -t $IMAGE_NAME .
         '''
