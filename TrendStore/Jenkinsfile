@@ -2,46 +2,62 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "trend-app"
-    DOCKERHUB_REPO = "sudharsanps115/trend-app"
+    IMAGE_NAME      = "trend-app"
+    DOCKERHUB_REPO  = "sudharsanps115/trend-app"
+    DOCKER_CREDS   = "dockerhub-creds"   // Jenkins credential ID
   }
 
   stages {
 
     stage('Checkout Code') {
       steps {
-         echo "Code already checked out by Jenkins SCM"
+        echo "Code already checked out by Jenkins SCM"
       }
     }
 
     stage('Build Docker Image') {
       steps {
-         sh '''
-        cd TrendStore
-        docker build -t $IMAGE_NAME .
+        sh '''
+          cd TrendStore
+          docker build -t $IMAGE_NAME .
         '''
       }
     }
 
-    stage('Push Image to DockerHub') {
+    stage('Login & Push Image to DockerHub') {
       steps {
-        sh '''
-        cd TrendStore
-        docker tag $IMAGE_NAME $DOCKERHUB_REPO:latest
-        docker push $DOCKERHUB_REPO:latest
-        '''
+        withCredentials([usernamePassword(
+          credentialsId: "${DOCKER_CREDS}",
+          usernameVariable: "DOCKER_USER",
+          passwordVariable: "DOCKER_PASS"
+        )]) {
+          sh '''
+            cd TrendStore
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker tag $IMAGE_NAME $DOCKERHUB_REPO:latest
+            docker push $DOCKERHUB_REPO:latest
+          '''
+        }
       }
     }
 
     stage('Deploy to Kubernetes') {
       steps {
         sh '''
-        cd TrendStore
-        kubectl apply -f Deployment.yaml
-        kubectl apply -f Service.yaml
+          cd TrendStore
+          kubectl apply -f Deployment.yaml
+          kubectl apply -f Service.yaml
         '''
       }
     }
   }
-}
 
+  post {
+    success {
+      echo " CI/CD Pipeline completed successfully"
+    }
+    failure {
+      echo " CI/CD Pipeline failed"
+    }
+  }
+}
