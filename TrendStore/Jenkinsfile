@@ -16,13 +16,18 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $IMAGE_NAME .'
+         sh
+        '''
+        cd TrendStore
+        docker build -t $IMAGE_NAME .
+        '''
       }
     }
 
     stage('Push Image to DockerHub') {
       steps {
         sh '''
+        cd TrendStore
         docker tag $IMAGE_NAME $DOCKERHUB_REPO:latest
         docker push $DOCKERHUB_REPO:latest
         '''
@@ -32,6 +37,7 @@ pipeline {
     stage('Deploy to Kubernetes') {
       steps {
         sh '''
+        cd TrendStore
         kubectl apply -f Deployment.yaml
         kubectl apply -f Service.yaml
         '''
