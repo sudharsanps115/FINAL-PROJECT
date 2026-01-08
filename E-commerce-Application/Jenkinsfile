@@ -5,7 +5,10 @@ pipeline {
 
     stage('Build Image') {
       steps {
-        sh './build.sh'
+        dir('E-commerce-Application') {
+          sh 'chmod +x build.sh'
+          sh './build.sh'
+        }
       }
     }
 
@@ -18,25 +21,24 @@ pipeline {
             passwordVariable: 'DOCKER_PASS'
           )
         ]) {
+          dir('E-commerce-Application') {
+            script {
+              if (env.BRANCH_NAME == 'dev') {
+                sh '''
+                  echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                  docker tag devops-build:latest sudharsanps115/dev:latest
+                  docker push sudharsanps115/dev:latest
+                '''
+              }
 
-          script {
-
-            if (env.BRANCH_NAME == 'dev') {
-              sh '''
-                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                docker tag devops-build:latest sudharsanps115/dev:latest
-                docker push sudharsanps115/dev:latest
-              '''
+              if (env.BRANCH_NAME == 'master') {
+                sh '''
+                  echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                  docker tag devops-build:latest sudharsanps115/prod:latest
+                  docker push sudharsanps115/prod:latest
+                '''
+              }
             }
-
-            if (env.BRANCH_NAME == 'master') {
-              sh '''
-                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                docker tag devops-build:latest sudharsanps115/prod:latest
-                docker push sudharsanps115/prod:latest
-              '''
-            }
-
           }
         }
       }
@@ -44,7 +46,10 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        sh './deploy.sh'
+        dir('E-commerce-Application') {
+          sh 'chmod +x deploy.sh'
+          sh './deploy.sh'
+        }
       }
     }
   }
