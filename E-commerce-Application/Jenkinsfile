@@ -1,19 +1,7 @@
 pipeline {
   agent any
 
-  environment {
-    DOCKER_USER = credentials('DOCKERHUB_USR')
-    DOCKER_PASS = credentials('DOCKERHUB_PSW')
-  }
-
   stages {
-
-    stage('Checkout') {
-      steps {
-        git branch: env.BRANCH_NAME,
-            url: 'https://github.com/sriram-R-krishnan/devops-build.git'
-      }
-    }
 
     stage('Build Image') {
       steps {
@@ -23,24 +11,33 @@ pipeline {
 
     stage('Push Image') {
       steps {
-        script {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'dockerhub-creds',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+          )
+        ]) {
 
-          if (env.BRANCH_NAME == 'dev') {
-            sh '''
-              docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-              docker tag devops-build:latest sudharsanps115/dev:latest
-              docker push sudharsanps115/dev:latest
-            '''
+          script {
+
+            if (env.BRANCH_NAME == 'dev') {
+              sh '''
+                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                docker tag devops-build:latest sudharsanps115/dev:latest
+                docker push sudharsanps115/dev:latest
+              '''
+            }
+
+            if (env.BRANCH_NAME == 'master') {
+              sh '''
+                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                docker tag devops-build:latest sudharsanps115/prod:latest
+                docker push sudharsanps115/prod:latest
+              '''
+            }
+
           }
-
-          if (env.BRANCH_NAME == 'master') {
-            sh '''
-              docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-              docker tag devops-build:latest sudharsanps115/prod:latest
-              docker push sudharsanps115/prod:latest
-            '''
-          }
-
         }
       }
     }
