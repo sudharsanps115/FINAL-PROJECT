@@ -31,7 +31,7 @@ pipeline {
                 '''
               }
 
-              if (env.BRANCH_NAME == 'master') {
+              if (env.BRANCH_NAME == 'main') {
                 sh '''
                   echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                   docker tag devops-build:latest sudharsanps115/prod:latest
