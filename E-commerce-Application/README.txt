@@ -15,14 +15,14 @@ The objective of the project is to automate application build, deployment, and m
 
 The system is designed using two separate AWS EC2 instances to ensure proper separation of concerns:
 
-1️⃣ Application EC2 (Production Server)
+1️] Application EC2 (Production Server)
 
 Hosts the E-commerce web application
 Runs the application inside Docker containers
 Exposes the application publicly on HTTP (port 80)
 Runs Node Exporter for system-level monitoring
 
-2️⃣ Monitoring EC2 (CI/CD + Observability Server)
+2️] Monitoring EC2 (CI/CD + Observability Server)
 
 Hosts Jenkins for CI/CD automation
 Hosts Prometheus for metrics collection
